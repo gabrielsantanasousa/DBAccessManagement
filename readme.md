@@ -55,9 +55,9 @@ O conceito do programa é orientar o utilizador a criar usuários nas instância
 
 
 Melhorias previstas / Entregas pendentes:
-- DDL DbLoginAutomation e PBI com Dashs dos relatórios possíveis de serem visualizados
+- DDL DbAccessManagement e PBI com Dashs dos relatórios possíveis de serem visualizados
 - Manual de utilização detalhado
-- Integracao com Azure KeyVault para resgatar senhas dos produtos que não integram com LDAP/Active Directory
-- Alterar libs para lib de packages do nuget.org para ficar client less e FULL compatível com PowerShell 7.x com .net6 Linux e MAC
+- Integração com Azure KeyVault para resgatar senhas dos produtos que não integram com LDAP/Active Directory
+- Alterar libs para libs de packages do nuget.org para ficar client less e FULL compatível com PowerShell 7.x com .net6 Linux e MAC
 - Automação para Azure SQL Single Database e Azure SQL Managed Instance
 - Automação para PostGreSQL
