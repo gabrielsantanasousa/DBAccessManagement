@@ -20,7 +20,7 @@ Pré-requisitos
     - SAP ASE 15.7 ou 16.0
     - MySQL 8
     - Banco de dados DBAccessManagement em uma instância SQL Server que é informada nos parâmetros globais
-    - Editar os parâmetros globais a partir da linha 3042 para setar a instância que possui o DBAccessManagement e função que mapeia servidor e porta do SAP ASE.
+    - Editar os parâmetros globais a partir da linha 2470 para setar a instância que possui o DBAccessManagement e função que mapeia servidor e porta do SAP ASE.
         - Parâmetro DBAccessManagement:
             - $script:DBAccessManagement = "192.168.0.220\SQL2k17"
         - Função que mapeia servidor e porta dos servidores Sybase/SAP ASE:
