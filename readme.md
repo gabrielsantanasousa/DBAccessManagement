@@ -14,8 +14,8 @@ Pré-requisitos
 
 - .Net 4.5.x
 - PowerShell 5 ou superior 
-- Host Windows Client ou Server integrado a um domínio (No momeneto, na próxima atualização será compatível com Linux e MAC)
-- Clients e Lib ()
+- Host Windows Client ou Server integrado a um domínio (Na próxima atualização será compatível com Linux e MAC)
+- Clients e Lib
     - Oracle 19
     - SAP ASE 15.7 ou 16.0
     - MySQL 8
