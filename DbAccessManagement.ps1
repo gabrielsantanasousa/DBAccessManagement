@@ -577,13 +577,13 @@ Function Update-DBAccessManagement
 }
 
 
-#################################################### MICROSOFT SQL SERVER ON-PREMISES ####################################################
+#################################################### MICROSOFT SQL SERVER ON-PREMISES and VM with SQL Server ####################################################
 
-### FUNCAO DE GERACAO DE DDL PARA LOGINS NO MSSQL (Failover, AlwaysOn, StandAlone on-premises)
+### FUNCAO DE GERACAO DE DDL PARA LOGINS NO MSSQL (On-premises, VM with SQL Server, Failover, AlwaysOn, StandAlone)
 ### GABRIEL SANTANA DE SOUSA (CRIACAO E MANUTENCAO)
 
 
-Function MsSql-ServiceLogin
+Function MSSql-LoginDDL
 {
     [CmdletBinding(SupportsShouldProcess)]
         Param(
@@ -591,56 +591,50 @@ Function MsSql-ServiceLogin
                 [string]$dominio,
                 [string]$loginname
              )
-    if (!$defdatabase)
+   
+    if ($type -eq "SERVICO")
     {
-        Write-Warning "NECESSARIO INFORMAR O DEFAULT DATABASE"
-    }
-    else
-    {
-        if ($type -eq "SERVICO")
-        {
         
-            write-output    "
-            if exists (select name from sys.syslogins where name = '$loginname')
+        write-output    "
+        if exists (select name from sys.syslogins where name = '$loginname')
+        begin
+        print @@servername + ':' + ' LOGIN ' + '$loginname' + ' EXISTE NA INSTANCIA' + CHAR(13)+CHAR(10)
+        end
+        else
+        begin
+        print @@servername + ': ' + ' LOGIN ' + '$loginname' + ' NAO EXISTE, EXECUTANDO CREATE LOGIN' + CHAR(13)+CHAR(10)
+        create login $loginname with password = '$senha',check_policy=off,check_expiration=off,default_database=tempdb
+        end
+        "
+    }
+    elseif ($type -eq "NOMINAL")
+    {
+        if (!$dominio)
+        {
+            Write-Warning 'NECESSARIO INFORMAR O DOMINIO'
+        }
+        else
+        {
+            Write-Output    "
+            if exists (select name from sys.syslogins where name = '$dominio\$loginname')
             begin
             print @@servername + ':' + ' LOGIN ' + '$loginname' + ' EXISTE NA INSTANCIA' + CHAR(13)+CHAR(10)
             end
             else
             begin
-            print @@servername + ': ' + ' LOGIN ' + '$loginname' + ' NAO EXISTE, EXECUTANDO CREATE LOGIN' + CHAR(13)+CHAR(10)
-            create login $loginname with password = '$senha',check_policy=off,check_expiration=off         
+            print @@servername + ':' + ' LOGIN ' + '$loginname' + ' NAO EXISTE, EXECUTANDO CREATE LOGIN' + CHAR(13)+CHAR(10)
+            create login [$dominio\$loginname] from windows with default_database=tempdb
             end
             "
         }
-        elseif ($type -eq "NOMINAL")
-        {
-            if (!$dominio)
-            {
-                Write-Warning 'NECESSARIO INFORMAR O DOMINIO'
-            }
-            else
-            {
-                Write-Output    "
-                if exists (select name from sys.syslogins where name = '$dominio\$loginname')
-                begin
-                print @@servername + ':' + ' LOGIN ' + '$loginname' + ' EXISTE NA INSTANCIA' + CHAR(13)+CHAR(10)
-                end
-                else
-                begin
-                print @@servername + ':' + ' LOGIN ' + '$loginname' + ' NAO EXISTE, EXECUTANDO CREATE LOGIN' + CHAR(13)+CHAR(10)
-                create login [$dominio\$loginname] from windows
-                end
-                "
-            }
-        }
-        elseif ($type -ne "NOMINAL" -or $type -ne "SERVICO")
-        {
-            Write-Warning "A VARIAVEL TYPE DEVE TER O VALOR 'SERVICO' OU 'NOMINAL'"
-        }
+    }
+    elseif ($type -ne "NOMINAL" -or $type -ne "SERVICO")
+    {
+        Write-Warning "A VARIAVEL TYPE DEVE TER O VALOR 'SERVICO' OU 'NOMINAL'"
     }
 }
 
-### FUNCAO DE GERACAO DE DDL PARA USUARIOS EM DATABASES NO MSSQL (Failover, AlwaysOn, StandAlone on-premises)
+### FUNCAO DE GERACAO DE DDL PARA USUARIOS EM DATABASES NO MSSQL (On-premises, VM with SQL Server, Failover, AlwaysOn, StandAlone)
 ### GABRIEL SANTANA DE SOUSA (CRIACAO E MANUTENCAO)
 
 function MsSql-DatabaseUser
@@ -781,7 +775,7 @@ Function MsSql-CreateLoginAndUserDB
                     Write-HOST "VALIDADA CONEXAO $($instancia):$($banco)"
                 }
 
-                $comandologin = MsSql-ServiceLogin -loginname $usuario -type $tipologin -dominio $nomedominio
+                $comandologin = MSSql-LoginDDL -loginname $usuario -type $tipologin -dominio $nomedominio
                 $comandousuario = MsSql-DatabaseUser -loginname $usuario -type $tipologin -dominio $nomedominio -dbname $bancosdedados -dbroles $papeis
                 Write-Output $comandologin | Out-File -Encoding oem -FilePath $env:USERPROFILE\UserDbAutomation\$($usuario)_sqlserver_ddl.sql
                 Write-Output $comandousuario | Out-File -Encoding oem -Append -FilePath $env:USERPROFILE\UserDbAutomation\$($usuario)_sqlserver_ddl.sql
@@ -833,8 +827,7 @@ Function MsSql-CreateLoginAndUserDB
                     {
                         
                         $senha = Randomicos
-
-                        $comandologin = MsSql-ServiceLogin -loginname $usuario -type $tipologin
+                        $comandologin = MSSql-LoginDDL -loginname $usuario -type $tipologin
                         $comandousuario = MsSql-DatabaseUser -loginname $usuario -type $tipologin -dbname $bancosdedados -dbroles $papeis
                         $senhalogin =  'SENHA DO LOGIN ' + $usuario + ': ' + $senha
                         Write-Output $senhalogin | Out-File -Append $env:USERPROFILE\UserDbAutomation\$usuario.log
@@ -860,7 +853,7 @@ Function MsSql-CreateLoginAndUserDB
                     }
                     else
                     {
-                        $comandologin = MsSql-ServiceLogin -loginname $usuario -type $tipologin
+                        $comandologin = MSSql-LoginDDL -loginname $usuario -type $tipologin
                         $comandousuario = MsSql-DatabaseUser -loginname $usuario -type $tipologin -dbname $bancosdedados -dbroles $papeis
                         Write-Output $comandologin | Out-File -Encoding oem -FilePath $env:USERPROFILE\UserDbAutomation\$($usuario)_sqlserver_ddl.sql
                         Write-Output $comandousuario | Out-File -Encoding oem -Append -FilePath $env:USERPROFILE\UserDbAutomation\$($usuario)_sqlserver_ddl.sql
