@@ -14,13 +14,14 @@ Pré-requisitos
 
 - .Net 4.5.x
 - PowerShell 5 ou superior 
-- Host Windows Client ou Server integrado a um domínio
-- Clients e Lib
+- Host Windows Client ou Server integrado a um domínio (No momeneto, na próxima atualização será compatível com Linux e MAC)
+- Clients e Lib ()
     - Oracle 19
     - SAP ASE 15.7 ou 16.0
     - MySQL 8
+    - Usuário DBA_ADMIN criado com privilégio de DBA/SysAdmin nas instâncias Oracle, SAP ASE e MySQL
     - Banco de dados DBAccessManagement em uma instância SQL Server que é informada nos parâmetros globais
-    - Editar os parâmetros globais a partir da linha 2470 para setar a instância que possui o DBAccessManagement e função que mapeia servidor e porta do SAP ASE.
+    - Editar os parâmetros globais a partir da linha 2460 para setar a instância que possui o DBAccessManagement, função SapAseIni que mapeia servidor e porta do SAP ASE, Oracle variável $script:OracleChangeRole.
         - Parâmetro DBAccessManagement:
             - $script:DBAccessManagement = "192.168.0.220\SQL2k17"
         - Função que mapeia servidor e porta dos servidores Sybase/SAP ASE:
